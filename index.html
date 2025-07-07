@@ -1,0 +1,1045 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>VTC Slot Booking</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: url('https://i.imgur.com/zhGmasr.jpeg') no-repeat center center fixed;
+      background-size: cover;
+      color: white;
+      text-align: center;
+    }
+
+    .header img {
+      width: 100%;
+      max-height: 150px;
+      object-fit: contain;
+    }
+
+    .form-container {
+      background: rgba(0, 0, 0, 0.5);
+      margin: 20px auto;
+      padding: 20px;
+      max-width: 500px;
+      border-radius: 10px;
+    }
+    
+    .popup-title-animated {
+       font-family: Times New Roman;
+       font-size: 23px;
+       font-weight: bold;
+       border: 2px solid red;
+       border-radius: 10px;
+       background: linear-gradient(90deg, red, yellow, lime, cyan, blue, magenta, red);
+       background-size: 400%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: rainbowText 8s linear infinite;
+      margin-bottom: 20px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+}
+
+@keyframes rainbowText {
+  0% { background-position: 0% }
+  100% { background-position: 400% }
+}
+
+    input, button {
+      display: block;
+      width: 95%;
+      margin: 15px auto;
+      padding: 13px;
+      border-radius: 10px;
+      border: none;
+      font-size: 16px;
+    }
+
+    input {
+      background: #222;
+      color: white;
+    }
+
+    .slots {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .slot-btn {
+      background: black;
+      color: white;
+      border: 1px solid #444;
+      border-radius: 5px;
+      padding: 10px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    .slot-btn.selected {
+      background: green;
+    }
+
+    .slot-btn.booked {
+      background: red;
+      cursor: not-allowed;
+    }
+
+    .submit-btn {
+      background: #ff4444;
+      width: 1px
+      height: 1px
+      padding: 9px 1px;
+      border: 1px solid black;
+      color: white;
+      cursor: pointer;
+      font-weight: bold;
+      animation: pulse 2s infinite;
+      border-radius: 10000px;
+      transition: transform 0.2s ease, background 0.3s;
+    }
+
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.4); }
+      70% { box-shadow: 0 0 0 10px rgba(255, 0, 0, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(255, 0, 0, 0); }
+    }
+    
+    .clear-btn {
+      padding: 10px 20px;
+      background-color: #222;
+      color: #fff;
+      border: 1px solid red;
+      border-radius: 8px;
+      margin-top: 15px;
+      cursor: pointer;
+      transition: 0.2s ease;
+      border-radius: 10000px;
+    }
+    
+    .logout-btn  {
+       background: black;
+       width: auto;
+       padding: 10px 30px;
+       font-size: 12px;
+       border: 1px solid red;
+       color: red;
+       cursor: pointer;
+       font-weight: bold;
+       animation: pulse 2s infinite;
+       border-radius: 10000px;
+       transition: transform 0.2s ease, background 0.3s;
+      }
+    
+    .history-btn {
+    background: #ff4444;
+      width: 1px
+      height: 1px
+      padding: 9px 1px;
+      border: 1px solid black;
+      color: white;
+      cursor: pointer;
+      font-weight: bold;
+      animation: pulse 2s infinite;
+      border-radius: 10000px;
+      transition: transform 0.2s ease, background 0.3s;
+    }
+    
+    .admin-btn-clos  {
+       background: black;
+       width: auto;
+       padding: 10px 30px;
+       font-size: 12px;
+       border: 1px solid red;
+       color: red;
+       cursor: pointer;
+       font-weight: bold;
+       animation: pulse 2s infinite;
+       border-radius: 10000px;
+       transition: transform 0.2s ease, background 0.3s;
+      }
+      
+      .admin-btn-sub  {
+       background: black;
+       width: auto;
+       padding: 10px 30px;
+       font-size: 12px;
+       border: 1px solid blue;
+       color: white;
+       cursor: pointer;
+       font-weight: bold;
+       animation: pulse 2s infinite;
+       border-radius: 10000px;
+       transition: transform 0.2s ease, background 0.3s;
+      }
+    
+    .admin-btn {
+       background: #ff4444;
+       width: auto;
+       padding: 10px 30px;
+       font-size: 12px;
+       border: 1px solid black;
+       color: white;
+       cursor: pointer;
+       font-weight: bold;
+       animation: pulse 2s infinite;
+       border-radius: 10000px;
+       transition: transform 0.2s ease, background 0.3s;
+      }
+      
+    .admin-box {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}
+
+    .admin-btn:hover {
+  background: #f44336;
+  transform: scale(1.05);
+     }
+
+    .ripple {
+      position: absolute;
+      border-radius: 50%;
+      transform: scale(0);
+      animation: ripple-animation 0.6s linear;
+      background: rgba(255, 255, 255, 0.6);
+      pointer-events: none;
+    }
+
+   @keyframes ripple-animation {
+        to {
+       transform: scale(4);
+        opacity: 0;
+     }
+    } /* ← closing brace added here */.
+
+   .clear-btn:hover {
+        background-color: #400;
+        transform: scale(1.05);
+      }
+
+    .reset-btn {
+      background: #ff4444;
+      width: 1px
+      height: 1px
+      padding: 9px 1px;
+      border: 1px solid black;
+      color: white;
+      cursor: pointer;
+      font-weight: bold;
+      animation: pulse 2s infinite;
+      border-radius: 10000px;
+      transition: transform 0.2s ease, background 0.3s;
+    }
+    
+    .button-grid input,
+.button-grid button {
+  flex: 0 0 calc(50% - 20px);
+  box-sizing: border-box;
+}
+    
+    .clear-btn {
+      background: black;
+      width: 1px
+      height: 1px
+      padding: 9px 1px;
+      border: 1px solid red;
+      color: white;
+      cursor: pointer;
+      font-weight: bold;
+      animation: pulse 2s infinite;
+      border-radius: 10000px;
+      transition: transform 0.2s ease, background 0.3s;
+}
+.clear-btn:hover {
+  background-color: #400;
+}
+
+    .alert {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(50, 50, 50, 0.6);
+      border: 2px solid red;
+      padding: 20px 30px;
+      border-radius: 15px;
+      color: white;
+      font-size: 18px;
+      display: none;
+      z-index: 9999;
+    }
+
+    #bookingPanel {
+      display: none;
+      background: rgba(0, 0, 0, 0.7);
+      max-width: 700px;
+      margin: 20px auto;
+      padding: 20px;
+      border-radius: 15px;
+    }
+
+    #bookingList {
+      text-align: left;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+    
+    #adminLoginSection {
+  transition: all 0.3s ease;
+}
+
+.button-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 15px;
+  margin: 20px auto;
+  max-width: 600px;
+}
+
+.button-grid button {
+  flex: 0 0 calc(50% - 20px); /* 2 per row with spacing */
+  box-sizing: border-box;
+}
+
+#bookingSuccessPopup {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: url('https://editablegifs.com/gif/thank-you-gif/thank-you-2.gif') 
+  center center no-repeat;
+  background-size: 90%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+#popupContent {
+  background: rgba(0, 0, 0, 0.85);
+  color: white;
+  padding: 30px;
+  border-radius: 20px;
+  text-align: center;
+  max-width: 500px;
+  width: 90%;
+  animation: fadeIn 0.5s ease;
+  box-shadow: 0 0 20px red;
+}
+
+.popup-grid {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 10px;
+  margin: 20px 0;
+  text-align: left;
+}
+
+.popup-grid div {
+  padding: 5px;
+}
+
+.popup-options button,
+.close-btn {
+  margin: 10px 5px;
+  padding: 10px 20px;
+  background: #ff4444;
+  border: none;
+  color: white;
+  font-weight: bold;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: 0.3s ease;
+}
+
+.popup-options button:hover,
+.close-btn:hover {
+  background: #ff0000;
+  transform: scale(1.05);
+}
+
+.discord-link {
+  display: inline-block;
+  margin-top: 15px;
+  color: #00bfff;
+  text-decoration: underline;
+  font-weight: bold;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.7); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.upload-from-link input {
+  width: 90%;
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 8px;
+  border: 1px solid #444;
+}
+
+.upload-from-link button {
+  background: #ff4444;
+  color: white;
+  font-weight: bold;
+  padding: 10px 20px;
+  border-radius: 10px;
+  border: 1px solid black;
+  cursor: pointer;
+}
+
+.uploaded-image {
+  margin-top: 15px;
+  max-width: 100%;
+  border-radius: 8px;
+  border: 1px solid white;
+}
+
+.form-container {
+  background: rgba(0, 0, 0, 0.5);  /* semi-transparent black */
+  ...
+}
+</style>
+</head>
+<body>
+  <div class="header">
+    <img src="https://i.imgur.com/lFpsXWO.png" alt="Header">
+  </div>
+  <div id="bookingSuccessPopup" style="display:none;">
+  <div id="popupContent">
+  <div id="emailPrompt" style="display:none; margin-top:15px;">
+  <input type="email" id="userEmailInput" placeholder="Enter your email" style="padding:10px; width:80%; border-radius:8px;" />
+  <br>
+  <button onclick="sendEmailToUser()">📨 Send Email</button>
+</div>
+    <h2>🎉 Booking Confirmed!</h2>
+    <div id="popupGrid" class="popup-grid"></div>
+
+    <div class="popup-options">
+      <p><strong>📨 Would you like your file sent to you?</strong></p>
+      <button onclick="handleFileOption('email')">📧 Send by Email</button>
+      <button onclick="handleFileOption('download')">⬇️ Download File</button>
+    </div>
+
+    <a href="https://discord.com/channels/727506096943792149/1391626157304315997" class="discord-link">
+      🔗 Open Discord View Storages Slot Channel
+    </a>
+
+    <button onclick="closePopup()" class="close-btn">❌ Close</button>
+  </div>
+</div>
+  
+ <div class="form-container">
+ <div class="popup-title-animated">BIRTHDAY DAY BOY 
+ </div>
+    <input type="text" id="vtcName" placeholder="VTC Name" />
+    <input type="text" id="vtcRole" placeholder="VTC Role" />
+    <input type="url" id="vtcLink" placeholder="VTC Link" />
+    <input type="text" id="discordId" placeholder="Discord ID" />
+  <div class="slots" id="slotContainer"></div>
+  
+  <div id="publicImageDisplay" style="text-align:center; margin: 20px 0;">
+  <!-- Image will load here -->
+</div>
+
+<div id="publicImageDisplay" style="text-align:center; margin: 20px 0;"></div>
+   
+    <!-- admin button pop-up -->
+<div style="text-align:center;">
+  <div id="adminLoginSection" style="display: none; margin-top: 10px;">
+    <input type="password" id="adminPassInput" placeholder="Enter Admin Password" />
+    <div class="button-grid">
+      <button class="admin-btn-sub" onclick="adminLogin()">Submit</button>
+      <button class="admin-btn-clos" onclick="closeAdminLogin()">Close ✖️</button>
+    </div>
+  </div>
+</div>
+   
+   <!--Buttun_Grid setting--> 
+ <div class="button-grid" id="publicButtons">
+  <button class="submit-btn" onclick="submitBooking()">Submit Booking</button>
+  <button class="reset-btn" onclick="window.location.href='bookings.html'">📋 View All Bookings</button>
+  <button class="clear-btn" id="clearForm">🧹 Clear Selection</button>
+  <button class="reset-btn" onclick="toggleAdminLogin()">🔐 Admin Login</button>
+</div>
+
+      <div id="bookingPanel">
+    <h2>All Bookings</h2>
+    <div id="bookingList"></div>
+  </div>
+<div class="alert" id="alertBox"></div>
+
+  <!---//admin Button-->
+    <div id="adminControls" style="display:none;">
+    
+    <div id="adminImageUpload" style="display:none; margin-top: 20px;" class="upload-from-link">
+  <h3>📎 Upload Public Image (Link)</h3>
+  <input type="text" id="imageUrlInput" placeholder="Paste image URL (https://...)" />
+  <button onclick="submitImageLink()">📤 Submit Image Link</button>
+  <div id="imagePreviewContainer"></div>
+</div>
+    
+  <div class="button-grid">
+    <button class="reset-btn" onclick="resetAllSlots()">♻️ Reset All Slots</button>
+
+<button class="reset-btn" onclick="deleteSelectedSlot()">🗑️ Delete Selected Slot</button>
+
+<button class="reset-btn" onclick="deleteLastSlot()">🗑️ Delete Last Slot</button>
+
+<button class="logout-btn" onclick="adminLogout()">🚪 Logout</button>
+  </div>
+
+    <input type="text" id="renameSlotInput" placeholder="Enter new slot name" />
+    <button class="reset-btn" onclick="renameSelectedSlot()">✏️ Rename Selected Slot</button>
+    <hr style="margin:10px 0; border-color:red;">
+   <input type="text" id="customSlotName" placeholder="Enter Slot Name (optional)" />
+    <button class="reset-btn" onclick="addSlot()">➕ Add Custom Slot</button>
+    <hr style="margin:10px 0; border-color:red;">
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+<script>
+  emailjs.init("YKQ-XA7D55lvUMzvF"); // Replace with your real EmailJS user ID
+</script>
+
+
+<script>
+//validation option script
+
+function isValidVTClink(link) {
+  return (
+    link === "https://truckersmp.com/vtc/" ||
+    /^https:\/\/truckersmp\.com\/vtc\/\d+$/.test(link)
+  );
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  const vtcInput = document.getElementById("vtcLink");
+  const statusBox = document.getElementById("vtcLinkStatus");
+
+  vtcInput.addEventListener("input", () => {
+    const link = vtcInput.value.trim();
+
+    if (!link) {
+      statusBox.innerText = "";
+      return;
+    }
+
+    if (isValidVTClink(link)) {
+      statusBox.innerText = "✅ Valid VTC Link";
+      statusBox.style.color = "lime";
+    } else {
+      statusBox.innerText = "❌ Invalid VTC Link (must start with https://truckersmp.com/vtc/)";
+      statusBox.style.color = "red";
+    }
+  });
+});
+
+function isValidDiscordId(discord) {
+  return /^@/.test(discord.trim());
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  const discordInput = document.getElementById("discordId");
+  const discordStatus = document.getElementById("discordStatus");
+
+  discordInput.addEventListener("input", () => {
+    const discord = discordInput.value.trim();
+
+    if (!discord) {
+      discordStatus.innerText = "";
+      return;
+    }
+
+    if (isValidDiscordId(discord)) {
+      discordStatus.innerText = "✅ Valid Discord ID";
+      discordStatus.style.color = "lime";
+    } else {
+      discordStatus.innerText = "❌ Invalid Discord ID (must start with @)";
+      discordStatus.style.color = "red";
+    }
+  });
+});
+</script>
+  
+  <script type="module">
+  
+  window.submitImageLink = () => {
+  const url = document.getElementById("imageUrlInput").value.trim();
+
+  if (!url || !url.match(/\.(jpeg|jpg|png|gif|webp)(\?.*)?$/i)) {
+    showAlert("❌ Please enter a valid image URL.");
+    return;
+  }
+
+  // Show preview
+  document.getElementById("imagePreviewContainer").innerHTML =
+    `<img src="${url}" class="uploaded-image" alt="Uploaded Image" />`;
+
+  // Display to public
+  document.getElementById("publicImageDisplay").innerHTML =
+    `<img src="${url}" style="max-width:100%; border-radius:10px;" alt="Public Image" />`;
+
+  // Save to Firebase
+  import("https://www.gstatic.com/firebasejs/11.9.1/firebase-database.js").then(({ getDatabase, ref, set }) => {
+    const db = getDatabase();
+    const imageRef = ref(db, "public/image");
+    set(imageRef, url).then(() => {
+      showAlert("✅ Image URL saved successfully!");
+    }).catch(() => {
+      showAlert("❌ Failed to save image URL.");
+    });
+  });
+};
+
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
+    import { getDatabase, ref, set, get, remove } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDDroX5R2fkfs76mjQXmHQ2ZAz9zTbVg90",
+      authDomain: "slot-book-8a1b9.firebaseapp.com",
+      databaseURL: "https://slot-book-8a1b9-default-rtdb.firebaseio.com",
+      projectId: "slot-book-8a1b9",
+      storageBucket: "slot-book-8a1b9.firebasestorage.app",
+      messagingSenderId: "162338367561",
+      appId: "1:162338367561:web:03d1eefdd2940a19a97798"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    const slotContainer = document.getElementById("slotContainer");
+    const alertBox = document.getElementById("alertBox");
+    let totalSlots = 30;
+    let selectedSlot = null;
+    const bookedSlots = [];
+
+   function showAlert(message) {
+      alertBox.innerText = message;
+      alertBox.style.display = "block";
+      setTimeout(() => {
+      alertBox.style.display = "none";
+     }, 3000);
+   }
+    
+    import { onValue } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-database.js";
+
+window.adminLogin = () => {
+  document.getElementById("adminImageUpload").style.display = "block";
+  const input = document.getElementById("adminPassInput").value.trim();
+  const passRef = ref(db, "admin/password");
+
+  get(passRef).then(snapshot => {
+    if (snapshot.exists() && input === snapshot.val()) {
+      document.getElementById("adminLoginSection").style.display = "none";
+      document.getElementById("adminControls").style.display = "block";
+      document.getElementById("publicButtons").style.display = "none"; // HIDE PUBLIC BUTTONS
+      showAlert("✅ Admin login successful!");
+    } else {
+      showAlert("❌ Incorrect admin password.");
+    }
+  }).catch(() => {
+    showAlert("⚠️ Error checking admin password.");
+  });
+};
+
+window.adminLogout = () => {
+  document.getElementById("adminImageUpload").style.display = "none";
+  document.getElementById("adminControls").style.display = "none";
+  document.getElementById("adminPassInput").value = "";
+  document.getElementById("adminLoginSection").style.display = "block";
+  document.getElementById("publicButtons").style.display = "flex"; // SHOW PUBLIC BUTTONS
+  showAlert("🚪 Logged out.");
+};
+    
+    
+    window.closeAdminLogin = () => {
+  document.getElementById("adminLoginSection").style.display = "none";
+};
+
+
+    for (let i = 1; i <= totalSlots; i++) {
+      const btn = document.createElement("button");
+      btn.innerText = i;
+      btn.classList.add("slot-btn");
+      btn.dataset.slot = i;
+      btn.onclick = () => {
+        if (btn.classList.contains("booked")) return;
+        document.querySelectorAll(".slot-btn").forEach(b => b.classList.remove("selected"));
+        selectedSlot = parseInt(btn.dataset.slot);
+        btn.classList.add("selected");
+      };
+      slotContainer.appendChild(btn);
+    }
+
+    const bookingsRef = ref(db, "bookings");
+    get(bookingsRef).then(snapshot => {
+      if (snapshot.exists()) {
+        const data = snapshot.val();
+        Object.entries(data).forEach(([slotKey, booking]) => {
+          const slot = parseInt(slotKey.replace("slot", ""));
+          bookedSlots.push(slot);
+          const btn = document.querySelector(`.slot-btn[data-slot="${slot}"]`);
+          if (btn) {
+            btn.classList.add("booked");
+            btn.disabled = true;
+          }
+        });
+      }
+    });
+    
+    // Load public image from Firebase on load
+const publicImageRef = ref(db, "public/image");
+get(publicImageRef).then(snapshot => {
+  if (snapshot.exists()) {
+    const url = snapshot.val();
+    document.getElementById("publicImageDisplay").innerHTML = `
+      <img src="${url}" style="max-width:100%; border-radius:10px;" alt="Public Image" />
+    `;
+  }
+});
+    
+    window.toggleAdminLogin = () => {
+  const section = document.getElementById("adminLoginSection");
+  if (section.style.display === "none") {
+    section.style.display = "block";
+    showAlert("🔐 Enter the admin password to log in");
+  } else {
+    section.style.display = "none";
+  }
+};
+    
+    window.showAdminLogin = () => {
+  document.getElementById("adminLoginSection").style.display = "block";
+};
+
+    window.submitBooking = () => {
+  const name = document.getElementById("vtcName").value.trim();
+  const role = document.getElementById("vtcRole").value.trim();
+  const link = document.getElementById("vtcLink").value.trim();
+  const discord = document.getElementById("discordId").value.trim();
+
+  if (!name || !role || !link || !discord || !selectedSlot) {
+    showAlert("Please fill all fields and select a slot.");
+    return;
+  }
+  
+  if (!isValidVTClink(link)) {
+  showAlert("❌ Invalid VTC link! Must be https://truckersmp.com/vtc/ or include an ID.");
+  return;
+}
+
+if (!isValidDiscordId(discord)) {
+  showAlert("❌ Invalid Discord ID. It must start with '@(username)'.");
+  return;
+}
+
+  get(bookingsRef).then(snapshot => {
+    if (snapshot.exists()) {
+      const data = snapshot.val();
+      const duplicate = Object.values(data).find(b =>
+        b.discordId === discord ||
+        b.vtcName.toLowerCase() === name.toLowerCase() ||
+        b.vtcLink.toLowerCase() === link.toLowerCase()
+      );
+
+     // if (duplicate) {
+   //   showAlert("This Discord ID, VTC Name, or VTC Link has already ///been used.");
+     //   return;
+ //     }
+    }
+
+    const bookingData = {
+      vtcName: name,
+      vtcRole: role,
+      vtcLink: link,
+      discordId: discord,
+      slotNumber: selectedSlot,
+      timestamp: new Date().toISOString()
+    };
+
+    const slotRef = ref(db, "bookings/slot" + selectedSlot);
+    set(slotRef, bookingData).then(() => {
+      bookedSlots.push(selectedSlot);
+      const btn = document.querySelector(`.slot-btn[data-slot="${selectedSlot}"]`);
+      btn.classList.remove("selected");
+      btn.classList.add("booked");
+      btn.disabled = true;
+
+      document.getElementById("popupGrid").innerHTML = `
+  <div>🆔 Slot:</div><div>${bookingData.slotNumber}</div>
+  <div>🚛 VTC:</div><div>${bookingData.vtcName}</div>
+  <div>🎖️ Role:</div><div>${bookingData.vtcRole}</div>
+  <div>🔗 Link:</div><div><a href="${bookingData.vtcLink}" target="_blank" style="color:#00bfff;">${bookingData.vtcLink}</a></div>
+  <div>💬 Discord ID:</div><div>${bookingData.discordId}</div>
+`;
+
+document.getElementById("bookingSuccessPopup").style.display = "flex";
+
+      // ✅ SEND DISCORD WEBHOOK
+      const webhookRef = ref(db, "webhook");
+get(webhookRef).then(snapshot => {
+  if (!snapshot.exists()) {
+    console.error("❌ Webhook config not found in database.");
+    showAlert("Webhook config missing. Please contact admin.");
+    return;
+  }
+
+  const { url: webhookURL, mentionRoleId } = snapshot.val();
+
+  fetch(webhookURL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      content: `<@715583272062681110>,<@&1387618438549340212>,<@&1338823646419882055>\n🚀 A new VTC booking has been made!`,
+      embeds: [{
+        title: `✅ NEW VTC BOOKING!`, // slot hidden
+        description: `🚛 **VTC Name:** ${bookingData.vtcName}\n\n🎖️ **Role:** ${bookingData.vtcRole}\n\n🔗 **Link:** ${bookingData.vtcLink}\n\n💺**Slot:** ${bookingData.slotNumber}\n\n💬 **Discord ID:** ${bookingData.discordId}`,
+        color: 16711680,
+        image: {
+          url: "https://i.imgur.com/Vt6UaZn.gif"
+        },
+        timestamp: new Date().toISOString()
+      }]
+    })
+  }).then(() => {
+    console.log("✅ Webhook sent!");
+  }).catch(err => {
+    console.error("❌ Webhook failed:", err);
+  });
+}).catch(err => {
+  console.error("❌ Failed to fetch webhook config:", err);
+  showAlert("Error loading webhook config.");
+});
+
+// Show success discord
+      fetch(webhookURL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          content: `<@&${mentionRoleId}> A new VTC slot has been booked!`,
+          embeds: [{
+            title: `✅ VTC Slot Booked: Slot ${bookingData.slotNumber}`,
+            description: `🚛 **VTC Name:** ${bookingData.vtcName}\n\n🎖️**Role:** ${bookingData.vtcRole}\n\n🔗 **Link:** ${bookingData.vtcLink}\n\n🆔 **Discord ID:** ${bookingData.discordId}`,
+            color: 16711680,
+            image: {
+              url: "https://i.imgur.com/Vt6UaZn.gif"
+            },
+            timestamp: new Date().toISOString()
+          }]
+        })
+      }).then(() => {
+        console.log("Webhook sent!");
+      }).catch(err => {
+        console.error("Webhook failed:", err);
+      });
+    }).catch(err => {
+      console.error(err);
+      showAlert("Error booking. Try again.");
+    });
+  });
+};
+
+document.getElementById("clearForm").addEventListener("click", () => {
+  // Clear input fields
+  document.getElementById("vtcName").value = "";
+  document.getElementById("vtcRole").value = "";
+  document.getElementById("vtcLink").value = "";
+  document.getElementById("discordId").value = "";
+
+  // Unselect slot
+  document.querySelectorAll(".slot-btn").forEach(button => {
+    button.classList.remove("selected");
+  });
+
+  selectedSlot = null;
+});
+
+    window.resetAllSlots = () => {
+      if (!confirm("Are you sure you want to reset all slots?")) return;
+      remove(bookingsRef).then(() => {
+        bookedSlots.length = 0;
+        document.querySelectorAll(".slot-btn").forEach(btn => {
+          btn.classList.remove("booked", "selected");
+          btn.disabled = false;
+        });
+        showAlert("All slots have been reset!");
+      }).catch(err => {
+        console.error(err);
+        showAlert("Failed to reset slots.");
+      });
+    };
+    
+    window.addSlot = () => {
+  totalSlots++;
+  const customName = document.getElementById("customSlotName").value.trim();
+  const slotName = customName ? customName : totalSlots;
+
+  const btn = document.createElement("button");
+  btn.innerText = slotName;
+  btn.classList.add("slot-btn");
+  btn.dataset.slot = totalSlots;
+  btn.dataset.name = slotName;
+
+  btn.onclick = () => {
+    if (btn.classList.contains("booked")) return;
+    document.querySelectorAll(".slot-btn").forEach(b => b.classList.remove("selected"));
+    selectedSlot = parseInt(btn.dataset.slot);
+    btn.classList.add("selected");
+  };
+
+  slotContainer.appendChild(btn);
+  document.getElementById("customSlotName").value = "";
+  showAlert(`Slot "${slotName}" added.`);
+};
+
+window.deleteSelectedSlot = () => {
+  if (!selectedSlot) {
+    showAlert("❌ No slot selected.");
+    return;
+  }
+
+  const btn = document.querySelector(`.slot-btn[data-slot="${selectedSlot}"]`);
+  if (!btn) {
+    showAlert("❌ Slot not found.");
+    return;
+  }
+
+  if (btn.classList.contains("booked")) {
+    showAlert("❌ Cannot delete a booked slot.");
+    return;
+  }
+
+  btn.remove();
+  showAlert(`Slot ${selectedSlot} removed.`);
+  selectedSlot = null;
+};
+
+window.renameSelectedSlot = () => {
+  const newName = document.getElementById("renameSlotInput").value.trim();
+  if (!selectedSlot) {
+    showAlert("❌ No slot selected to rename.");
+    return;
+  }
+  if (!newName) {
+    showAlert("❗ Please enter a new name.");
+    return;
+  }
+  const btn = document.querySelector(`.slot-btn[data-slot="${selectedSlot}"]`);
+  if (btn) {
+    btn.innerText = newName;
+    showAlert(`✅ Slot ${selectedSlot} renamed to "${newName}"`);
+    document.getElementById("renameSlotInput").value = "";
+  } else {
+    showAlert("❌ Slot button not found.");
+  }
+};
+
+window.deleteLastSlot = () => {
+  if (totalSlots <= 1) {
+    showAlert("Cannot delete the last remaining slot.");
+    return;
+  }
+
+  const lastBtn = document.querySelector(`.slot-btn[data-slot="${totalSlots}"]`);
+  if (!lastBtn) {
+    showAlert("No such slot to delete.");
+    return;
+  }
+
+  if (lastBtn.classList.contains("booked")) {
+    showAlert("Cannot delete a booked slot.");
+    return;
+  }
+
+  lastBtn.remove();
+  totalSlots--;
+  showAlert(`Slot ${totalSlots + 1} removed.`);
+};
+
+    window.toggleViewPanel = () => {
+      const panel = document.getElementById("bookingPanel");
+      const list = document.getElementById("bookingList");
+      if (panel.style.display === "none") {
+        panel.style.display = "block";
+        list.innerHTML = "<p>Loading...</p>";
+        get(bookingsRef).then(snapshot => {
+          if (!snapshot.exists()) {
+            list.innerHTML = "<p>No bookings found.</p>";
+            return;
+          }
+          const data = snapshot.val();
+          let html = "<ul>";
+          //Booked slot view
+          Object.values(data).forEach(booking => {
+                html += `<li style="margin-bottom:10px;">
+            <strong>Slot ${booking.slotNumber}</strong> — ${booking.vtcName}
+               <hr>
+              </li>`;
+             });
+          html += "</ul>";
+          list.innerHTML = html;
+        });
+      } else {
+        panel.style.display = "none";
+      }
+    };
+    
+    window.handleFileOption = (type) => {
+  if (type === 'email') {
+    document.getElementById("emailPrompt").style.display = "block";
+  } else {
+    const content = `Your VTC Booking:\nSlot: ${selectedSlot}\nVTC: ${document.getElementById("vtcName").value}`;
+    const blob = new Blob([content], { type: 'text/plain' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `VTC_Slot_${Math.floor(Math.random()*10000)}.txt`;
+    link.click();
+  }
+};
+
+window.sendEmailToUser = () => {
+  const email = document.getElementById("userEmailInput").value.trim();
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    alert("❌ Please enter a valid email address.");
+    return;
+  }
+
+  const templateParams = {
+    email: email,
+    slot: selectedSlot,
+    vtc: document.getElementById("vtcName").value,
+    role: document.getElementById("vtcRole").value,
+    link: document.getElementById("vtcLink").value,
+    discord: document.getElementById("discordId").value
+  };
+
+  emailjs.send("service_0yqz9cj", "template_tazt67g", templateParams)
+    .then(() => {
+      showAlert("✅ Email sent successfully!");
+      document.getElementById("emailPrompt").style.display = "none";
+      document.getElementById("userEmailInput").value = "";
+    }, (error) => {
+      console.error("EmailJS error:", error);
+      showAlert("❌ Failed to send email.");
+    });
+};
+
+window.closePopup = () => {
+  document.getElementById("bookingSuccessPopup").style.display = "none";
+};
+    
+  </script>
+  <footer style="text-align:center; padding: 10px; font-size: 14px; color: white; opacity: 0.6;">
+  &copy;<span id="year"></span> Nexus Transport × Virtual Company. All rights reserved.
+</footer>
+</body>
+</html>

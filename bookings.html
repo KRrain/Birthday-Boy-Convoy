@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>All Bookings | VTC Slot Booking</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      background: #000;
+      color: white;
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+      color: red;
+      margin-bottom: 20px;
+      font-size: 24px;
+    }
+    /* Table for desktop */
+    .container {
+      overflow-x: auto;
+      max-width: 100%;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: rgba(0,0,0,0.6);
+    }
+    th, td {
+      border: 1px solid #444;
+      padding: 10px;
+      text-align: center;
+      word-break: break-word;
+      font-size: 14px;
+    }
+    th {
+      background-color: #ff4444;
+      color: white;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+    tr:nth-child(even) {
+      background-color: rgba(255, 255, 255, 0.05);
+    }
+    a {
+      color: #00bfff;
+      word-break: break-all;
+    }
+    /* Card style for mobile */
+    .cards { display: none; }
+    .card {
+      background: rgba(255, 0, 0, 0.1);
+      border: 1px solid red;
+      border-radius: 10px;
+      padding: 15px;
+      margin-bottom: 15px;
+    }
+    .card p {
+      margin: 8px 0;
+      font-size: 14px;
+    }
+    .card a {
+      color: #00bfff;
+    }
+    /* Responsive switch: hide table and show cards on narrow screens */
+    @media (max-width: 600px) {
+      table { display: none; }
+      .cards { display: block; }
+      h1 { font-size: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <h1>📋 All Bookings</h1>
+
+  <!-- Desktop Table View -->
+  <div class="container">
+    <table id="bookingTable">
+      <thead>
+        <tr>
+          <th>VTC Name</th>
+          <th>VTC Role</th>
+          <th>VTC Link</th>
+          <th>Discord ID</th>
+          <th>Slot</th>
+          <th>Time</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td colspan="6">Loading...</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Mobile Card View -->
+  <div class="cards" id="bookingCards"></div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
+    import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDDroX5R2fkfs76mjQXmHQ2ZAz9zTbVg90",
+      authDomain: "slot-book-8a1b9.firebaseapp.com",
+      databaseURL: "https://slot-book-8a1b9-default-rtdb.firebaseio.com",
+      projectId: "slot-book-8a1b9",
+      storageBucket: "slot-book-8a1b9.appspot.com",
+      messagingSenderId: "162338367561",
+      appId: "1:162338367561:web:03d1eefdd2940a19a97798"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    const bookingTable = document.querySelector("#bookingTable tbody");
+    const bookingCards = document.getElementById("bookingCards");
+
+    const bookingsRef = ref(db, "bookings");
+    get(bookingsRef).then(snapshot => {
+      if (!snapshot.exists()) {
+        bookingTable.innerHTML = "<tr><td colspan='6'>No bookings found.</td></tr>";
+        bookingCards.innerHTML = "<p>No bookings found.</p>";
+        return;
+      }
+
+      const data = snapshot.val();
+      let tableHTML = "";
+      let cardsHTML = "";
+      Object.values(data).forEach(b => {
+        tableHTML += `
+          <tr>
+            <td>${b.vtcName}</td>
+            <td>${b.vtcRole}</td>
+            <td><a href="${b.vtcLink}" target="_blank">${b.vtcLink}</a></td>
+            <td>${b.discordId}</td>
+            <td>${b.slotNumber}</td>
+            <td>${new Date(b.timestamp).toLocaleString()}</td>
+          </tr>`;
+
+        cardsHTML += `
+          <div class="card">
+            <p><strong>🚛 VTC:</strong> ${b.vtcName}</p>
+            <p><strong>🎖️ Role:</strong> ${b.vtcRole}</p>
+            <p><strong>🔗 Link:</strong> <a href="${b.vtcLink}" target="_blank">${b.vtcLink}</a></p>
+            <p><strong>💺 Slot:</strong> ${b.slotNumber}</p>
+            <p><strong>💬 Discord:</strong> ${b.discordId}</p>
+            <p><strong>🕒 Time:</strong> ${new Date(b.timestamp).toLocaleString()}</p>
+          </div>`;
+      });
+      bookingTable.innerHTML = tableHTML;
+      bookingCards.innerHTML = cardsHTML;
+    }).catch(err => {
+      console.error(err);
+      bookingTable.innerHTML = "<tr><td colspan='6'>Error loading bookings.</td></tr>";
+      bookingCards.innerHTML = "<p>Error loading bookings.</p>";
+    });
+  </script>
+</body>
+</html>
